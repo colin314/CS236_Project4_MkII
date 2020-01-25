@@ -1,0 +1,8 @@
+.vs/
+.vscode/
+*.vcxproj
+*.sln
+*.vcxproj.filters
+*.vcxproj.user
+Debug/
+Examples/
