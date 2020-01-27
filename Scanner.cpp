@@ -8,7 +8,7 @@ std::vector<Token> Scanner::Tokenize() {
             lineNum++;
             continue;
         }
-        if (std::isblank(character)) {
+        if (isblank(character)) {
             continue;
         }
         tokenVec.push_back(readCharacter(character));
