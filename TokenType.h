@@ -20,7 +20,8 @@ enum TokenType {
     STRING=14,
     COMMENT=15,
     UNDEFINED=16,
-    _EOF=17
+    _EOF=17,
+    EXPRESSION = 18
 };
 
 inline std::string tokenTypeToString(const TokenType& ttype) {
@@ -44,6 +45,7 @@ inline std::string tokenTypeToString(const TokenType& ttype) {
     case COMMENT:     return "COMMENT";    
     case UNDEFINED:   return "UNDEFINED";  
     case _EOF:        return "EOF";        
+    case EXPRESSION:  return "EXPRESSION";
     default:
         return "";
     }

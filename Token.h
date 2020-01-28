@@ -8,6 +8,8 @@
 class Token
 {
 public:
+
+
     Token(TokenType type, std::string tokenStr, int lineNum) {
         _type = type;
         _tokenStr = tokenStr;
