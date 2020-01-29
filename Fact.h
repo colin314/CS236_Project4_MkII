@@ -1,0 +1,31 @@
+#include "Token.h"
+#include <exception>
+#include <vector>
+#include <string>
+
+class Fact {
+public:
+    Fact(const Token& id) {
+        factID = new Token(id);
+    }
+    ~Fact() {
+        delete factID;
+    }
+
+    void setFactId(const Token& id){
+        if (id.getTokenType() != TokenType::ID) { std::invalid_argument("Attempted to set fact ID with token that is not an ID."); }
+        factID = new Token(id);
+    }
+
+    void addString(std::string fact){
+        factStrings.push_back(fact);
+    }
+
+    std::vector<std::string>* getFactStringList() {
+        return &factStrings;
+    }
+
+private:
+    Token* factID;
+    std::vector<std::string> factStrings;
+};

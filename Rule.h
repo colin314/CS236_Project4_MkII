@@ -1,14 +1,33 @@
 #pragma once
 
 #include <string>
+#include "HeadPredicate.h"
+#include "Predicate.h"
+#include <vector>
 
 class Rule {
 public:
-    Rule() {}
-    ~Rule() {}
+    Rule() {
+        headPred = nullptr;
+    }
+    ~Rule() {
+        if (headPred != nullptr) { delete headPred; }
+        for (size_t i = 0; i < predicates.size(); i++)
+        {
+            delete predicates.at(i);
+        }
+    }
 
-    std::string toString();
+    void setHeatPred(HeadPredicate* headPredicate){
+        headPred = headPredicate;
+    }
 
+    std::vector<Predicate*>* getPredicateList() {
+        return &predicates;
+    }
 
+private:
+    HeadPredicate* headPred;
+    std::vector<Predicate*> predicates;
 };
 

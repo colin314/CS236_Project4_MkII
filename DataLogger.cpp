@@ -102,11 +102,17 @@ void DataLogger::parseQueryList(std::vector<Token>::iterator& tokens) {
 void DataLogger::parseScheme(std::vector<Token>::iterator& tokens) {
     if (tokens->getTokenType() == TokenType::ID)
     {
-        parseTerminal(tokens, TokenType::ID);
-        parseTerminal(tokens, TokenType::LEFT_PAREN);
-        parseTerminal(tokens, TokenType::ID);
-        parseIdList(tokens);
-        parseTerminal(tokens, TokenType::RIGHT_PAREN);
+        Scheme* newScheme = new Scheme(*tokens);
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::LEFT_PAREN) { throw *tokens; }
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::ID) { throw *tokens; }
+        newScheme->getIdVector()->push_back(*tokens);
+        ++tokens;
+        parseIdList(tokens, newScheme->getIdVector());
+        if (tokens ->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
+        ++tokens;
+        schemes.push_back(newScheme);
     }
     else
     {
@@ -117,12 +123,19 @@ void DataLogger::parseScheme(std::vector<Token>::iterator& tokens) {
 void DataLogger::parseFact(std::vector<Token>::iterator& tokens) {
     if (tokens->getTokenType() == TokenType::ID)
     {
-        parseTerminal(tokens, TokenType::ID);
-        parseTerminal(tokens, TokenType::LEFT_PAREN);
-        parseTerminal(tokens, TokenType::STRING);
-        parseStringList(tokens);
-        parseTerminal(tokens, TokenType::RIGHT_PAREN);
-        parseTerminal(tokens, TokenType::PERIOD);
+        Fact* newFact = new Fact(*tokens);
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::LEFT_PAREN) { throw *tokens; }
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::STRING) {throw *tokens; }
+        newFact->addString(tokens->getTokenStr());
+        ++tokens;
+        parseStringList(tokens, newFact->getFactStringList());
+        if (tokens ->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::PERIOD) {throw *tokens; }
+        ++tokens;
+        facts.push_back(newFact);
     }
     else
     {
@@ -133,8 +146,10 @@ void DataLogger::parseFact(std::vector<Token>::iterator& tokens) {
 void DataLogger::parseRule(std::vector<Token>::iterator& tokens) {
     if (tokens->getTokenType() == TokenType::ID)
     {
-        parseHeadPredicate(tokens);
-        parseTerminal(tokens, TokenType::COLON_DASH);
+        Rule* newRule = new Rule();
+        parseHeadPredicate(tokens, newRule);
+        if (tokens->getTokenType() != TokenType::COLON_DASH) { throw *tokens; }
+        ++tokens;
         parsePredicate(tokens);
         parsePredicateList(tokens);
         parseTerminal(tokens, TokenType::PERIOD);
@@ -157,14 +172,20 @@ void DataLogger::parseQuery(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parseHeadPredicate(std::vector<Token>::iterator& tokens) {
+void DataLogger::parseHeadPredicate(std::vector<Token>::iterator& tokens, Rule* rule) {
     if (tokens->getTokenType() == TokenType::ID)
     {
-        parseTerminal(tokens, TokenType::ID);
-        parseTerminal(tokens, TokenType::LEFT_PAREN);
-        parseTerminal(tokens, TokenType::ID);
-        parseIdList(tokens);
-        parseTerminal(tokens, TokenType::RIGHT_PAREN);
+        HeadPredicate*  newHPred = new HeadPredicate(*tokens);
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::LEFT_PAREN) { throw *tokens; }
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::ID) { throw *tokens; }
+        ++tokens;
+        newHPred->getIdList()->push_back(*tokens);
+        parseIdList(tokens, newHPred->getIdList());
+        if (tokens->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
+        ++tokens;
+
     }
     else
     {
@@ -172,13 +193,19 @@ void DataLogger::parseHeadPredicate(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parsePredicate(std::vector<Token>::iterator& tokens) {
+void DataLogger::parsePredicate(std::vector<Token>::iterator& tokens, std::vector<Predicate*>* predList) {
     if (tokens->getTokenType() == TokenType::ID)
     {
-        parseTerminal(tokens, TokenType::ID);
+        Predicate* newPred = new Predicate(*tokens);
+        ++tokens;
         parseTerminal(tokens, TokenType::LEFT_PAREN);
         parseParameter(tokens);
         parseParameterList(tokens);
+        if (/* condition */)
+        {
+            /* code */
+        }
+        
         parseTerminal(tokens, TokenType::RIGHT_PAREN);
     }
     else
@@ -205,21 +232,24 @@ void DataLogger::parseParameterList(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parseStringList(std::vector<Token>::iterator& tokens) {
+void DataLogger::parseStringList(std::vector<Token>::iterator& tokens, std::vector<std::string>* stringList) {
     if (tokens->getTokenType() == TokenType::COMMA)
     {
-        parseTerminal(tokens, TokenType::COMMA);
-        parseTerminal(tokens, TokenType::STRING);
-        parseStringList(tokens);
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::STRING) { throw *tokens; }
+        stringList->push_back(tokens->getTokenStr());
+        ++tokens;
+        parseStringList(tokens, stringList);
     }
 }
 
-void DataLogger::parseIdList(std::vector<Token>::iterator& tokens) {
+void DataLogger::parseIdList(std::vector<Token>::iterator& tokens, std::vector<Token>* idList) {
     if (tokens->getTokenType() == TokenType::COMMA)
     {
-        parseTerminal(tokens, TokenType::COMMA);
-        parseTerminal(tokens, TokenType::ID);
-        parseIdList(tokens);
+        ++tokens;
+        if (tokens->getTokenType() != TokenType::ID) { throw *tokens; }
+        idList->push_back(*tokens);
+        parseIdList(tokens, idList);
     }
 }
 

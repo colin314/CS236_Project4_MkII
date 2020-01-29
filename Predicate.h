@@ -8,24 +8,25 @@
 
 class Predicate {
 public:
-    Predicate() {
-        id = nullptr;
-        leftParen = nullptr;
-        rightParen = nullptr;
+    Predicate(const Token& id) {
+        this->id = new Token(id);
     }
     ~Predicate() 
     {
-        if (id         != nullptr) { delete id; }
-        if (leftParen  != nullptr) { delete leftParen; }
-        if (rightParen != nullptr) { delete rightParen; }
+        delete id;
+        for (size_t i = 0; i < parameters.size(); i++)
+        {
+            delete parameters.at(i);
+        }
+        
     }
 
-    std::string toString();
+    std::vector<Parameter*>* getParameters() {
+        return &parameters;
+    }
 
 private:
     Token* id;
-    Token* leftParen;
-    std::vector<Parameter> parameters;
-    Token* rightParen;
+    std::vector<Parameter*> parameters;
 };
 

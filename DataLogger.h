@@ -2,11 +2,19 @@
 
 #include "Token.h"
 #include "TokenType.h"
+#include "Predicate.h"
+#include "HeadPredicate.h"
+#include "Parameter.h"
+#include "Rule.h"
+#include "Expression.h"
+#include "Scheme.h"
+#include "Fact.h"
 #include <vector>
 #include <stack>
 #include <string>
 #include <queue>
 #include <iostream>
+
 
 using std::string;
 using std::cout; using std::endl;
@@ -28,6 +36,16 @@ public:
         delete factsQueue;
         delete rulesQueue;
         delete queriesQueue;
+        for (size_t i = 0; i < facts.size(); i++)
+        {
+            delete facts.at(i);
+        }
+        for (size_t i = 0; i < schemes.size(); i++)
+        {
+            delete schemes.at(i);
+        }
+        
+        
     }
 
     string parse(std::vector<Token>* const &inputTokens);
@@ -38,6 +56,8 @@ private:
     std::queue<Token>* factsQueue;
     std::queue<Token>* rulesQueue;
     std::queue<Token>* queriesQueue;
+    std::vector<Scheme*> schemes;
+    std::vector<Fact*> facts;
 
     void parseDatalogProgram(std::vector<Token>::iterator& tokens);
     void parseSchemeList(std::vector<Token>::iterator& tokens);
@@ -48,12 +68,12 @@ private:
     void parseFact(std::vector<Token>::iterator& tokens);
     void parseRule(std::vector<Token>::iterator& tokens);
     void parseQuery(std::vector<Token>::iterator& tokens);
-    void parseHeadPredicate(std::vector<Token>::iterator& tokens);
-    void parsePredicate(std::vector<Token>::iterator& tokens);
+    void parseHeadPredicate(std::vector<Token>::iterator& tokens, Rule* rule);
+    void parsePredicate(std::vector<Token>::iterator& tokens, std::vector<Predicate*>* predList);
     void parsePredicateList(std::vector<Token>::iterator& tokens);
     void parseParameterList(std::vector<Token>::iterator& tokens);
-    void parseStringList(std::vector<Token>::iterator& tokens);
-    void parseIdList(std::vector<Token>::iterator& tokens);
+    void parseStringList(std::vector<Token>::iterator& tokens, std::vector<std::string>* stringList);
+    void parseIdList(std::vector<Token>::iterator& tokens, std::vector<Token>* idList);
     void parseParameter(std::vector<Token>::iterator& tokens);
     void parseExpression(std::vector<Token>::iterator& tokens);
     void parseOperator(std::vector<Token>::iterator& tokens);

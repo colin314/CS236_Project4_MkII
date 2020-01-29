@@ -8,7 +8,11 @@
 class Token
 {
 public:
-
+    Token(const Token& token) {
+        _type = token._type;
+        _tokenStr = token._tokenStr;
+        _lineNum = token._lineNum;
+    }
 
     Token(TokenType type, std::string tokenStr, int lineNum) {
         _type = type;
@@ -17,10 +21,10 @@ public:
     }
     ~Token() {}
 
-    TokenType getTokenType() {
+    TokenType getTokenType() const {
         return _type;
     }
-    std::string getTokenStr() {
+    std::string getTokenStr() const {
         return _tokenStr;
     }
     int getLineNum() {
