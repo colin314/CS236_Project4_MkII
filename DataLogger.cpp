@@ -93,10 +93,9 @@ void DataLogger::parseRuleList(std::vector<Token>::iterator& tokens) {
 void DataLogger::parseQueryList(std::vector<Token>::iterator& tokens) {
     if (tokens->getTokenType() == TokenType::ID)
     {
-        parsePredicate(tokens);
-        parseTerminal(tokens, TokenType::Q_MARK);
+        parseQuery(tokens);
+        parseQueryList(tokens);
     }
-    
 }
 
 void DataLogger::parseScheme(std::vector<Token>::iterator& tokens) {
@@ -150,8 +149,8 @@ void DataLogger::parseRule(std::vector<Token>::iterator& tokens) {
         parseHeadPredicate(tokens, newRule);
         if (tokens->getTokenType() != TokenType::COLON_DASH) { throw *tokens; }
         ++tokens;
-        parsePredicate(tokens);
-        parsePredicateList(tokens);
+        parsePredicate(tokens, newRule->getPredicateList());
+        parsePredicateList(tokens, newRule->getPredicateList());
         parseTerminal(tokens, TokenType::PERIOD);
     }
     else
@@ -163,7 +162,7 @@ void DataLogger::parseRule(std::vector<Token>::iterator& tokens) {
 void DataLogger::parseQuery(std::vector<Token>::iterator& tokens) {
     if (tokens->getTokenType() == TokenType::ID)
     {
-        parsePredicate(tokens);
+        parsePredicate(tokens, &queries);
         parseTerminal(tokens, TokenType::Q_MARK);
     }
     else
@@ -201,12 +200,8 @@ void DataLogger::parsePredicate(std::vector<Token>::iterator& tokens, std::vecto
         parseTerminal(tokens, TokenType::LEFT_PAREN);
         parseParameter(tokens);
         parseParameterList(tokens);
-        if (/* condition */)
-        {
-            /* code */
-        }
-        
-        parseTerminal(tokens, TokenType::RIGHT_PAREN);
+        if (tokens->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
+        ++tokens;
     }
     else
     {
@@ -214,12 +209,12 @@ void DataLogger::parsePredicate(std::vector<Token>::iterator& tokens, std::vecto
     }
 }
 
-void DataLogger::parsePredicateList(std::vector<Token>::iterator& tokens) {
+void DataLogger::parsePredicateList(std::vector<Token>::iterator& tokens, std::vector<Predicate*>* predList) {
     if (tokens->getTokenType() == TokenType::COMMA)
     {
         parseTerminal(tokens, TokenType::COMMA);
-        parsePredicate(tokens);
-        parsePredicateList(tokens);
+        parsePredicate(tokens, predList);
+        parsePredicateList(tokens, predList);
     }
 }
 

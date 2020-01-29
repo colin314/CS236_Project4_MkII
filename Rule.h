@@ -26,6 +26,8 @@ public:
         return &predicates;
     }
 
+    std::string toString();
+
 private:
     HeadPredicate* headPred;
     std::vector<Predicate*> predicates;

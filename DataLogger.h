@@ -44,6 +44,11 @@ public:
         {
             delete schemes.at(i);
         }
+        for (size_t i = 0; i < queries.size(); i++)
+        {
+            delete queries.at(i);
+        }
+        
         
         
     }
@@ -58,6 +63,7 @@ private:
     std::queue<Token>* queriesQueue;
     std::vector<Scheme*> schemes;
     std::vector<Fact*> facts;
+    std::vector<Predicate*> queries;
 
     void parseDatalogProgram(std::vector<Token>::iterator& tokens);
     void parseSchemeList(std::vector<Token>::iterator& tokens);
@@ -70,7 +76,7 @@ private:
     void parseQuery(std::vector<Token>::iterator& tokens);
     void parseHeadPredicate(std::vector<Token>::iterator& tokens, Rule* rule);
     void parsePredicate(std::vector<Token>::iterator& tokens, std::vector<Predicate*>* predList);
-    void parsePredicateList(std::vector<Token>::iterator& tokens);
+    void parsePredicateList(std::vector<Token>::iterator& tokens, std::vector<Predicate*>* predList);
     void parseParameterList(std::vector<Token>::iterator& tokens);
     void parseStringList(std::vector<Token>::iterator& tokens, std::vector<std::string>* stringList);
     void parseIdList(std::vector<Token>::iterator& tokens, std::vector<Token>* idList);

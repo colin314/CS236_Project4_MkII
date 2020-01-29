@@ -25,6 +25,8 @@ public:
         return &parameters;
     }
 
+    std::string toString();
+
 private:
     Token* id;
     std::vector<Parameter*> parameters;

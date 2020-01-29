@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Token.h"
 #include <exception>
 #include <vector>
