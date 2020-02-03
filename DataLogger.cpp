@@ -137,10 +137,12 @@ void DataLogger::parseScheme(vector<Token>::iterator& tokens) {
         ++tokens;
         parseTerminal(tokens, LEFT_PAREN);
         checkTerminal(tokens, ID);
-        newScheme->getIdVector()->push_back(new Token(*tokens));
+        Token* newToken = new Token(*tokens);
+        newScheme->getIdVector()->push_back(newToken);
         ++tokens;
         parseIdList(tokens, newScheme->getIdVector());
         parseTerminal(tokens, RIGHT_PAREN);
+        newScheme = nullptr;
     }
     else {
         throw* tokens;
@@ -160,6 +162,7 @@ void DataLogger::parseFact(vector<Token>::iterator& tokens) {
         parseStringList(tokens, newFact->getFactStringList());
         parseTerminal(tokens, RIGHT_PAREN);
         parseTerminal(tokens, PERIOD);
+        newFact = nullptr;
     }
     else {
         throw* tokens;
