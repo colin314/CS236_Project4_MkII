@@ -12,6 +12,9 @@ public:
     }
     ~HeadPredicate() {
         delete predID;
+        for (size_t i = 0; i < idList.size(); i++) {
+            delete idList.at(i);
+        }
     }
 
     std::vector<Token*>* getIdList() {

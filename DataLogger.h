@@ -28,20 +28,17 @@ public:
         failToken = nullptr;
     }
     ~DataLogger() {
-        for (size_t i = 0; i < facts.size(); i++)
-        {
-            delete facts.at(i);
-        }
-        for (size_t i = 0; i < schemes.size(); i++)
-        {
+        for (size_t i = 0; i < schemes.size(); i++) {
             delete schemes.at(i);
         }
-        for (size_t i = 0; i < queries.size(); i++)
-        {
-            delete queries.at(i);
+        for (size_t i = 0; i < facts.size(); i++) {
+            delete facts.at(i);
         }
         for (size_t i = 0; i < rules.size(); i++) {
             delete rules.at(i);
+        }
+        for (size_t i = 0; i < queries.size(); i++) {
+            delete queries.at(i);
         }
         if (failToken != nullptr) { delete failToken; }
     }
