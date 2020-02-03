@@ -19,7 +19,7 @@ public:
     std::string toString();
 
     vector<Parameter*>* getParams() { return &params; }
-    Token* getOperatorToken() { return _operator; }
+    Token** getOperatorToken() { return &_operator; }
 
 private:
     vector<Parameter*> params;

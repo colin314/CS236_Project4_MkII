@@ -3,6 +3,9 @@
 #include "Token.h"
 #include <vector>
 #include <exception>
+#include <string>
+#include <sstream>
+#include <iostream>
 
 class Scheme {
 public:
@@ -28,6 +31,7 @@ public:
 
     Token getSchemeId();
     std::vector<Token*>* getIdVector() { return &ids; }
+    std::string toString();
 
 private:
     Token* schemeID;

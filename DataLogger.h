@@ -14,15 +14,18 @@
 #include <string>
 #include <queue>
 #include <iostream>
+#include <sstream>
+#include <set>
 
 using std::string;
 using std::cout; using std::endl;
-using std::vector;
+using std::vector; using std::set;
 
 class DataLogger {
 public:
     DataLogger() {
-
+        success = false;
+        failToken = nullptr;
     }
     ~DataLogger() {
         for (size_t i = 0; i < facts.size(); i++)
@@ -40,14 +43,18 @@ public:
         for (size_t i = 0; i < rules.size(); i++) {
             delete rules.at(i);
         }
+        if (failToken != nullptr) { delete failToken; }
     }
-
-    string parse(vector<Token>* const &inputTokens);
+    void parse(vector<Token>* inputTokens);
+    string toString();
 private:
     vector<Scheme*> schemes;
     vector<Fact*> facts;
     vector<Rule*> rules;
     vector<Predicate*> queries;
+    set<string> domain;
+    bool success;
+    Token* failToken;
 
     void parseDatalogProgram(vector<Token>::iterator& tokens);
     void parseSchemeList(vector<Token>::iterator& tokens);
@@ -66,8 +73,7 @@ private:
     void parseIdList(vector<Token>::iterator& tokens, vector<Token*>* idList);
     void parseParameter(vector<Token>::iterator& tokens, vector<Parameter*>* paramList);
     void parseExpression(vector<Token>::iterator& tokens, vector<Parameter*>* paramList);
-    void parseOperator(vector<Token>::iterator& tokens, Token* opTkn);
+    void parseOperator(vector<Token>::iterator& tokens, Token** opTkn);
     void parseTerminal(vector<Token>::iterator& tokens, TokenType terminalType);
-
     void checkTerminal(vector<Token>::iterator& tokens, TokenType ttype);
 };

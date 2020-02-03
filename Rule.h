@@ -4,6 +4,7 @@
 #include "HeadPredicate.h"
 #include "Predicate.h"
 #include <vector>
+#include <sstream>
 
 class Rule {
 public:

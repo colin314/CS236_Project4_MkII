@@ -2,6 +2,8 @@
 
 #include "Token.h"
 #include <vector>
+#include <string>
+#include <sstream>
 
 class HeadPredicate{
 public:
@@ -15,6 +17,8 @@ public:
     std::vector<Token*>* getIdList() {
         return &idList;
     }
+
+    std::string toString();
 
 private:
     Token* predID;

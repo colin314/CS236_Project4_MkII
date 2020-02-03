@@ -73,6 +73,7 @@ public:
     }
     ~ExpParam();
 
+    void setExpression(Expression* expression) { _exp = expression; }
     Expression* getExpression() { return _exp; }
 
     std::string toString();

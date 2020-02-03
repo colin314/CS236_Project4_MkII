@@ -4,6 +4,7 @@
 #include <exception>
 #include <vector>
 #include <string>
+#include <sstream>
 
 class Fact {
 public:
@@ -26,6 +27,8 @@ public:
     std::vector<std::string>* getFactStringList() {
         return &factStrings;
     }
+
+    std::string toString();
 
 private:
     Token* factID;
