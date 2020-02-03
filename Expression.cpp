@@ -1,13 +1,12 @@
 #include "Expression.h"
 
 std::string Expression::toString() {
-    std::stringstream sstr;
-    sstr << "(" << leftParam->toString() << _operator->getTokenStr() << rightParam->toString() << ")";
-    return sstr.str();
+    return "Expression toString not implemented.\n";
 }
 
 Expression::~Expression() {
-    if (leftParam != nullptr) { delete leftParam; }
-    if (rightParam != nullptr) { delete rightParam; }
+    for (size_t i = 0; i < params.size(); i++) {
+        delete params.at(i);
+    }
     if (_operator != nullptr) { delete _operator; }
 }

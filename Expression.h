@@ -3,26 +3,27 @@
 #include "Parameter.h"
 #include <string>
 #include <sstream>
+#include <vector>
+
+using std::vector;
 
 class Parameter;
 
 class Expression {
 public:
     Expression() {
-        leftParam = nullptr;
         _operator = nullptr;
-        rightParam = nullptr;
     }
     ~Expression();
 
     std::string toString();
 
-    //void setLeftParam(const Parameter &leftParam);
+    vector<Parameter*>* getParams() { return &params; }
+    Token* getOperatorToken() { return _operator; }
 
 private:
-    Parameter* leftParam;
+    vector<Parameter*> params;
     Token* _operator;
-    Parameter* rightParam;
 
 };
 

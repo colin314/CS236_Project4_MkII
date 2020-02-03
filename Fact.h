@@ -15,7 +15,7 @@ public:
     }
 
     void setFactId(const Token& id){
-        if (id.getTokenType() != TokenType::ID) { std::invalid_argument("Attempted to set fact ID with token that is not an ID."); }
+        if (id.getTokenType() != TokenType::ID) { throw std::invalid_argument("Attempted to set fact ID with token that is not an ID."); }
         factID = new Token(id);
     }
 

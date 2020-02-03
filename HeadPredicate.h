@@ -12,11 +12,11 @@ public:
         delete predID;
     }
 
-    std::vector<Token>* getIdList() {
+    std::vector<Token*>* getIdList() {
         return &idList;
     }
 
 private:
     Token* predID;
-    std::vector<Token> idList;
+    std::vector<Token*> idList;
 };

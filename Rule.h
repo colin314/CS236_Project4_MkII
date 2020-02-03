@@ -18,7 +18,7 @@ public:
         }
     }
 
-    void setHeatPred(HeadPredicate* headPredicate){
+    void setHeadPred(HeadPredicate* headPredicate){
         headPred = headPredicate;
     }
 

@@ -21,16 +21,15 @@ public:
         schemeID = new Token(id);
     }
 
-    void addIdToScheme(Token id) {
+    void addIdToScheme(const Token& id) {
         if (id.getTokenType() != TokenType::ID) { throw std::invalid_argument("Non-ID token passed to addIdToScheme"); }
-        ids.push_back(id);
+        ids.push_back(new Token(id));
     }
 
-    std::vector<Token> getSchemeIds();
     Token getSchemeId();
-    std::vector<Token>* getIdVector() { return &ids; }
+    std::vector<Token*>* getIdVector() { return &ids; }
 
 private:
     Token* schemeID;
-    std::vector<Token> ids;
+    std::vector<Token*> ids;
 };

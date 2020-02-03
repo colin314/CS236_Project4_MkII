@@ -34,6 +34,12 @@ public:
     }
 
     std::string toString() { return _str->getTokenStr(); }
+    void setString(const Token& str) {
+        if (str.getTokenType() != STRING) { throw std::invalid_argument("Non-String token given to StringParam.\n"); }
+        if (_str != nullptr) { delete _str; }
+        _str = new Token(str);
+    }
+
 private:
     Token* _str;
 };
@@ -42,16 +48,21 @@ class IdParam : public Parameter {
 public:
     IdParam() {
         paramType = TokenType::ID;
-        id = nullptr;
+        _id = nullptr;
     }
     ~IdParam() {
-        if (id != nullptr) { delete id; }
+        if (_id != nullptr) { delete _id; }
     }
 
-    std::string toString() { return id->getTokenStr(); }
+    std::string toString() { return _id->getTokenStr(); }
+    void setId(const Token& id) {
+        if (id.getTokenType() != ID) { throw std::invalid_argument("Non-ID token given to IdParam.\n"); }
+        if (_id != nullptr) { delete _id; }
+        _id = new Token(id);
+    }
 
 private:
-    Token* id;
+    Token* _id;
 };
 
 class ExpParam : public Parameter {
@@ -62,8 +73,10 @@ public:
     }
     ~ExpParam();
 
+    Expression* getExpression() { return _exp; }
+
     std::string toString();
 
 private:
-    Expression *_exp;
+    Expression* _exp;
 };

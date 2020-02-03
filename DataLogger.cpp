@@ -1,9 +1,9 @@
 #include "DataLogger.h"
 
-string DataLogger::parse(std::vector<Token> * const & inputTokens) {
+string DataLogger::parse(vector<Token> * const & inputTokens) {
     try
     {
-        std::vector<Token>::iterator it = inputTokens->begin();
+        vector<Token>::iterator it = inputTokens->begin();
         parseDatalogProgram(it);
     }
     catch(const Token& t)
@@ -13,10 +13,7 @@ string DataLogger::parse(std::vector<Token> * const & inputTokens) {
     
     cout << "Success!" << endl;
 
-    while (outputQueue->size() > 0) {
-        cout << outputQueue->front().getTokenStr() << endl;
-        outputQueue->pop();
-    }
+    return "";
 
     //Schemes
 
@@ -31,30 +28,36 @@ string DataLogger::parse(std::vector<Token> * const & inputTokens) {
     return "Not Implemented";
 }
 
-void DataLogger::parseTerminal(std::vector<Token>::iterator& tokens, TokenType terminalType){
+void DataLogger::checkTerminal(vector<Token>::iterator& tokens, TokenType ttype) {
+    if (tokens->getTokenType() != ttype) {
+        throw* tokens;
+    }
+    
+}
+
+void DataLogger::parseTerminal(vector<Token>::iterator& tokens, TokenType terminalType){
     if (tokens->getTokenType() != terminalType)
     {
         throw *tokens;
     }
     
-    outputQueue->push(*tokens);
     ++tokens;
 }
 
-void DataLogger::parseDatalogProgram(std::vector<Token>::iterator& tokens){
-    if (tokens->getTokenType() == TokenType::SCHEMES){
-        parseTerminal(tokens, TokenType::SCHEMES);
-        parseTerminal(tokens, TokenType::COLON);
+void DataLogger::parseDatalogProgram(vector<Token>::iterator& tokens){
+    if (tokens->getTokenType() == SCHEMES){
+        parseTerminal(tokens, SCHEMES);
+        parseTerminal(tokens, COLON);
         parseScheme(tokens);
         parseSchemeList(tokens);
-        parseTerminal(tokens, TokenType::FACTS);
-        parseTerminal(tokens, TokenType::COLON);
+        parseTerminal(tokens, FACTS);
+        parseTerminal(tokens, COLON);
         parseFactList(tokens);
-        parseTerminal(tokens, TokenType::RULES);
-        parseTerminal(tokens, TokenType::COLON);
+        parseTerminal(tokens, RULES);
+        parseTerminal(tokens, COLON);
         parseRuleList(tokens);
-        parseTerminal(tokens, TokenType::QUERIES);
-        parseTerminal(tokens, TokenType::COLON);
+        parseTerminal(tokens, QUERIES);
+        parseTerminal(tokens, COLON);
         parseQuery(tokens);
         parseQueryList(tokens);
     }
@@ -64,54 +67,55 @@ void DataLogger::parseDatalogProgram(std::vector<Token>::iterator& tokens){
     }
 }
 
-void DataLogger::parseSchemeList(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseSchemeList(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         parseScheme(tokens);
         parseSchemeList(tokens);
     }
 }
 
-void DataLogger::parseFactList(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseFactList(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         parseFact(tokens);
         parseFactList(tokens);
     }
-    
 }
 
-void DataLogger::parseRuleList(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseRuleList(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         parseRule(tokens);
         parseRuleList(tokens);
     }
-    
 }
 
-void DataLogger::parseQueryList(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseQueryList(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         parseQuery(tokens);
         parseQueryList(tokens);
     }
 }
 
-void DataLogger::parseScheme(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseScheme(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         Scheme* newScheme = new Scheme(*tokens);
+        schemes.push_back(newScheme);
         ++tokens;
-        if (tokens->getTokenType() != TokenType::LEFT_PAREN) { throw *tokens; }
-        ++tokens;
-        if (tokens->getTokenType() != TokenType::ID) { throw *tokens; }
-        newScheme->getIdVector()->push_back(*tokens);
+        parseTerminal(tokens, LEFT_PAREN);
+        checkTerminal(tokens, ID);
+        newScheme->getIdVector()->push_back(new Token(*tokens));
         ++tokens;
         parseIdList(tokens, newScheme->getIdVector());
-        if (tokens ->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
-        ++tokens;
-        schemes.push_back(newScheme);
+        parseTerminal(tokens, RIGHT_PAREN);
     }
     else
     {
@@ -119,22 +123,21 @@ void DataLogger::parseScheme(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parseFact(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseFact(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         Fact* newFact = new Fact(*tokens);
+        facts.push_back(newFact);
         ++tokens;
-        if (tokens->getTokenType() != TokenType::LEFT_PAREN) { throw *tokens; }
-        ++tokens;
-        if (tokens->getTokenType() != TokenType::STRING) {throw *tokens; }
+
+        parseTerminal(tokens, LEFT_PAREN);
+        checkTerminal(tokens, STRING);
         newFact->addString(tokens->getTokenStr());
         ++tokens;
         parseStringList(tokens, newFact->getFactStringList());
-        if (tokens ->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
-        ++tokens;
-        if (tokens->getTokenType() != TokenType::PERIOD) {throw *tokens; }
-        ++tokens;
-        facts.push_back(newFact);
+        parseTerminal(tokens, RIGHT_PAREN);
+        parseTerminal(tokens, PERIOD);
     }
     else
     {
@@ -142,16 +145,17 @@ void DataLogger::parseFact(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parseRule(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseRule(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         Rule* newRule = new Rule();
+        rules.push_back(newRule);
         parseHeadPredicate(tokens, newRule);
-        if (tokens->getTokenType() != TokenType::COLON_DASH) { throw *tokens; }
-        ++tokens;
+        parseTerminal(tokens, COLON_DASH);
         parsePredicate(tokens, newRule->getPredicateList());
         parsePredicateList(tokens, newRule->getPredicateList());
-        parseTerminal(tokens, TokenType::PERIOD);
+        parseTerminal(tokens, PERIOD);
     }
     else
     {
@@ -159,11 +163,12 @@ void DataLogger::parseRule(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parseQuery(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseQuery(vector<Token>::iterator& tokens) {
+    if (tokens->getTokenType() == ID)
     {
         parsePredicate(tokens, &queries);
-        parseTerminal(tokens, TokenType::Q_MARK);
+        parseTerminal(tokens, Q_MARK);
     }
     else
     {
@@ -171,110 +176,100 @@ void DataLogger::parseQuery(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parseHeadPredicate(std::vector<Token>::iterator& tokens, Rule* rule) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parseHeadPredicate(vector<Token>::iterator& tokens, Rule* rule) {
+    if (tokens->getTokenType() == ID)
     {
         HeadPredicate*  newHPred = new HeadPredicate(*tokens);
+        rule->setHeadPred(newHPred);
         ++tokens;
-        if (tokens->getTokenType() != TokenType::LEFT_PAREN) { throw *tokens; }
+        parseTerminal(tokens, LEFT_PAREN);
+        checkTerminal(tokens, ID);
+        newHPred->getIdList()->push_back(new Token(*tokens));
         ++tokens;
-        if (tokens->getTokenType() != TokenType::ID) { throw *tokens; }
-        ++tokens;
-        newHPred->getIdList()->push_back(*tokens);
         parseIdList(tokens, newHPred->getIdList());
-        if (tokens->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
-        ++tokens;
-
+        parseTerminal(tokens, RIGHT_PAREN);
     }
-    else
-    {
-        throw *tokens;
-    }
+    else { throw *tokens; }
 }
 
-void DataLogger::parsePredicate(std::vector<Token>::iterator& tokens, std::vector<Predicate*>* predList) {
-    if (tokens->getTokenType() == TokenType::ID)
+//DONE
+void DataLogger::parsePredicate(vector<Token>::iterator& tokens, vector<Predicate*>* predList) {
+    if (tokens->getTokenType() == ID)
     {
         Predicate* newPred = new Predicate(*tokens);
+        predList->push_back(newPred);
         ++tokens;
-        parseTerminal(tokens, TokenType::LEFT_PAREN);
-        parseParameter(tokens);
-        parseParameterList(tokens);
-        if (tokens->getTokenType() != TokenType::RIGHT_PAREN) { throw *tokens; }
-        ++tokens;
+        parseTerminal(tokens, LEFT_PAREN);
+        parseParameter(tokens, newPred->getParameters());
+        parseParameterList(tokens, newPred->getParameters());
+        parseTerminal(tokens, RIGHT_PAREN);
     }
-    else
-    {
-        throw *tokens;
-    }
+    else { throw *tokens; }
 }
 
-void DataLogger::parsePredicateList(std::vector<Token>::iterator& tokens, std::vector<Predicate*>* predList) {
-    if (tokens->getTokenType() == TokenType::COMMA)
+//DONE
+void DataLogger::parsePredicateList(vector<Token>::iterator& tokens, vector<Predicate*>* predList) {
+    if (tokens->getTokenType() == COMMA)
     {
-        parseTerminal(tokens, TokenType::COMMA);
+        parseTerminal(tokens, COMMA);
         parsePredicate(tokens, predList);
         parsePredicateList(tokens, predList);
     }
 }
 
-void DataLogger::parseParameterList(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::COMMA)
+//DONE
+void DataLogger::parseParameterList(vector<Token>::iterator& tokens, vector<Parameter*>* paramList) {
+    if (tokens->getTokenType() == COMMA)
     {
-        parseTerminal(tokens, TokenType::COMMA);
-        parseParameter(tokens);
-        parseParameterList(tokens);
+        parseTerminal(tokens, COMMA);
+        parseParameter(tokens, paramList);
+        parseParameterList(tokens, paramList);
     }
 }
 
-void DataLogger::parseStringList(std::vector<Token>::iterator& tokens, std::vector<std::string>* stringList) {
-    if (tokens->getTokenType() == TokenType::COMMA)
+//DONE
+void DataLogger::parseStringList(vector<Token>::iterator& tokens, vector<std::string>* stringList) {
+    if (tokens->getTokenType() == COMMA)
     {
         ++tokens;
-        if (tokens->getTokenType() != TokenType::STRING) { throw *tokens; }
+        checkTerminal(tokens, COMMA);
         stringList->push_back(tokens->getTokenStr());
         ++tokens;
         parseStringList(tokens, stringList);
     }
 }
 
-void DataLogger::parseIdList(std::vector<Token>::iterator& tokens, std::vector<Token>* idList) {
-    if (tokens->getTokenType() == TokenType::COMMA)
+//DONE
+void DataLogger::parseIdList(vector<Token>::iterator& tokens, vector<Token*>* idList) {
+    if (tokens->getTokenType() == COMMA)
     {
         ++tokens;
-        if (tokens->getTokenType() != TokenType::ID) { throw *tokens; }
-        idList->push_back(*tokens);
+        checkTerminal(tokens, ID);
+        idList->push_back(new Token(*tokens));
         parseIdList(tokens, idList);
     }
 }
 
-void DataLogger::parseParameter(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::LEFT_PAREN)
+//DONE
+void DataLogger::parseParameter(vector<Token>::iterator& tokens, vector<Parameter*>* paramList) {
+    if (tokens->getTokenType() == LEFT_PAREN)
     {
-        parseExpression(tokens);
+        parseExpression(tokens, paramList);
     }
-    else if (tokens->getTokenType() == TokenType::ID) 
+    else if (tokens->getTokenType() == ID) 
     {
-        parseTerminal(tokens, TokenType::ID);
+        IdParam* newIdParam = new IdParam();
+        paramList->push_back(newIdParam);
+        newIdParam->setId(*tokens);
+        ++tokens;
     }
-    else if (tokens->getTokenType() == TokenType::STRING)
+    else if (tokens->getTokenType() == STRING)
     {
-        parseTerminal(tokens, TokenType::STRING);
-    }
-    else
-    {
-        throw *tokens;
-    }
-}
-
-void DataLogger::parseExpression(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::LEFT_PAREN)
-    {
-        parseTerminal(tokens, TokenType::LEFT_PAREN);
-        parseParameter(tokens);
-        parseOperator(tokens);
-        parseParameter(tokens);
-        parseTerminal(tokens, TokenType::RIGHT_PAREN);
+        StringParam* newStrParam = new StringParam();
+        paramList->push_back(newStrParam);
+        newStrParam->setString(*tokens);
+        ++tokens;
     }
     else
     {
@@ -282,14 +277,40 @@ void DataLogger::parseExpression(std::vector<Token>::iterator& tokens) {
     }
 }
 
-void DataLogger::parseOperator(std::vector<Token>::iterator& tokens) {
-    if (tokens->getTokenType() == TokenType::ADD)
+//DONE
+void DataLogger::parseExpression(vector<Token>::iterator& tokens, vector<Parameter*>* paramList) {
+    if (tokens->getTokenType() == LEFT_PAREN)
     {
-        parseTerminal(tokens, TokenType::ADD);
+        ExpParam* newExpr = new ExpParam();
+        paramList->push_back(newExpr);
+
+        parseTerminal(tokens, LEFT_PAREN);
+        parseParameter(tokens, newExpr->getExpression()->getParams());
+        parseOperator(tokens, newExpr->getExpression()->getOperatorToken());
+        parseParameter(tokens, newExpr->getExpression()->getParams());
+        parseTerminal(tokens, RIGHT_PAREN);
     }
-    else if (tokens->getTokenType() == TokenType::MULTIPLY)
+    else
     {
-        parseTerminal(tokens, TokenType::MULTIPLY);
+        throw *tokens;
+    }
+}
+
+//DONE
+void DataLogger::parseOperator(vector<Token>::iterator& tokens, Token* opTkn) {
+    if (opTkn != nullptr) {
+        delete opTkn;
+        opTkn = nullptr;
+    }
+    if (tokens->getTokenType() == ADD)
+    {
+        opTkn = new Token(*tokens);
+        ++tokens;
+    }
+    else if (tokens->getTokenType() == MULTIPLY)
+    {
+        opTkn = new Token(*tokens);
+        ++tokens;
     }
     else
     {
