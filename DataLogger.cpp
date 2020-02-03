@@ -138,7 +138,7 @@ void DataLogger::parseScheme(vector<Token>::iterator& tokens) {
         parseTerminal(tokens, LEFT_PAREN);
         checkTerminal(tokens, ID);
         Token* newToken = new Token(*tokens);
-        newScheme->getIdVector()->push_back(newToken);
+        newScheme->addIdToScheme(*tokens);
         ++tokens;
         parseIdList(tokens, newScheme->getIdVector());
         parseTerminal(tokens, RIGHT_PAREN);
