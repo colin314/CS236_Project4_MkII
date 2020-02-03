@@ -13,7 +13,7 @@ public:
     Parameter() {
         paramType = TokenType::UNDEFINED;
     }
-    ~Parameter() {}
+    virtual ~Parameter() {}
 
     TokenType getType() { return paramType; }
     virtual std::string toString() = 0;
