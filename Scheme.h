@@ -17,6 +17,9 @@ public:
     }
     ~Scheme() {
         if (schemeID != nullptr) { delete schemeID; }
+        for (size_t i = 0; i < ids.size(); i++) {
+            delete ids.at(i);
+        }
     }
 
     void setSchemeID(const Token& id){
