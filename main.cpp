@@ -7,10 +7,12 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    Scanner scnr(argv[1]);
-    vector<Token> tokens = scnr.Tokenize();
-    DataLogger dataLogger;
-    dataLogger.parse(&tokens);
-    cout << dataLogger.toString();
+    Scanner* scnr = new Scanner(argv[1]);
+    vector<Token> tokens = scnr->Tokenize();
+    DataLogger* dataLogger = new DataLogger();
+    dataLogger->parse(&tokens);
+    cout << dataLogger->toString();
+    delete scnr;
+    delete dataLogger;
     return 0;
 }
