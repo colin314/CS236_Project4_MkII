@@ -49,8 +49,35 @@ public:
         return std::distance(_attributes.begin(), it);
     }
 
+    const string getAttribute(size_t index) const {
+        return _attributes.at(index);
+    }
+
     vector<size_t>* getAttributeIndices(const vector<string>& newAttributes);
     DbScheme* generateNewScheme(const vector<string>& newScheme);
+    DbScheme* generateNewScheme(size_t attributeIndex, const string newAttributeName) {
+        if (attribInScheme(newAttributeName)) {
+            throw std::exception("Cannot rename attribute to new name. The new name is already in the scheme.");
+        }
+        string oldName = _attributes.at(attributeIndex);
+
+        DbScheme* newScheme = new DbScheme(*this);
+        try {
+            newScheme->attributeSet.erase(oldName);
+            newScheme->attributeSet.insert(newAttributeName);
+            newScheme->_attributes.at(attributeIndex) = newAttributeName;
+        }
+        catch (const std::exception& ex) {
+            delete newScheme;
+            throw ex;
+        }
+        catch (...) {
+            delete newScheme;
+            throw std::exception("Error in renaming scheme DbScheme::generateNewScheme");
+        }
+
+        return newScheme;
+    }
     string toString() const;
 private:
     

@@ -33,6 +33,10 @@ public:
         if (_str != nullptr) { delete _str; }
     }
 
+    std::string getStr() {
+        return _str->getTokenStr();
+    }
+
     std::string toString() { return _str->getTokenStr(); }
     void setString(const Token& str) {
         if (str.getTokenType() != STRING) { throw std::invalid_argument("Non-String token given to StringParam.\n"); }
@@ -52,6 +56,10 @@ public:
     }
     ~IdParam() {
         if (_id != nullptr) { delete _id; }
+    }
+
+    std::string getIdStr() {
+        return _id->getTokenStr();
     }
 
     std::string toString() { return _id->getTokenStr(); }

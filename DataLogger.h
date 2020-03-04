@@ -46,6 +46,7 @@ public:
     string toString();
     const vector<Scheme*>* getSchemes() const { return &schemes; }
     const vector<Fact*>* getFacts() const { return &facts; }
+    const vector<Predicate*>* getQueries() const { return &queries; }
 
 private:
     vector<Scheme*> schemes;

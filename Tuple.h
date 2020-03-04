@@ -17,6 +17,11 @@ public:
             values.push_back(*cit);
         }
     }
+    Tuple(const Tuple& old) {
+        for (size_t i = 0; i < old.values.size(); i++) {
+            this->values.push_back(old.values.at(i));
+        }
+    }
     ~Tuple() { }
 
     string getAt(size_t index) {
@@ -31,6 +36,10 @@ public:
         }
 
         return rv;
+    }
+
+    const vector<string>* getData() const {
+        return &values;
     }
 
     string toString() const;

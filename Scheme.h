@@ -40,7 +40,8 @@ public:
         return ids.cend();
     }
 
-    Token getSchemeId();
+    
+    std::string getSchemeId() const;
     std::vector<Token*>* getIdVector() { return &ids; }
     std::string toString();
 

@@ -1,7 +1,7 @@
 #include "Scheme.h"
 
-Token Scheme::getSchemeId() {
-    return *schemeID;
+std::string Scheme::getSchemeId() const {
+    return schemeID->getTokenStr();
 }
 
 std::string Scheme::toString() {
