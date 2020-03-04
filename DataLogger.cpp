@@ -298,7 +298,7 @@ void DataLogger::parseExpression(vector<Token>::iterator& tokens, vector<Paramet
 
 void DataLogger::parseOperator(vector<Token>::iterator& tokens, Token** opTkn) {
     if (*opTkn != nullptr) {
-        delete opTkn;
+        delete *opTkn;
         *opTkn = nullptr;
     }
     if (tokens->getTokenType() == ADD) {

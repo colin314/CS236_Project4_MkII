@@ -24,8 +24,16 @@ public:
         factStrings.push_back(fact);
     }
 
+    const std::vector<std::string>* getFacts() const {
+        return &factStrings;
+    }
+
     std::vector<std::string>* getFactStringList() {
         return &factStrings;
+    }
+
+    std::string getID() const {
+        return factID->getTokenStr();
     }
 
     std::string toString();

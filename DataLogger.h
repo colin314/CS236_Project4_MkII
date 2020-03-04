@@ -44,6 +44,9 @@ public:
     }
     void parse(vector<Token>* inputTokens);
     string toString();
+    const vector<Scheme*>* getSchemes() const { return &schemes; }
+    const vector<Fact*>* getFacts() const { return &facts; }
+
 private:
     vector<Scheme*> schemes;
     vector<Fact*> facts;

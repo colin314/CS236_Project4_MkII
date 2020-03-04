@@ -32,6 +32,14 @@ public:
         ids.push_back(new Token(id));
     }
 
+    std::vector<Token*>::const_iterator begin() const {
+        return ids.cbegin();
+    }
+
+    std::vector<Token*>::const_iterator end() const {
+        return ids.cend();
+    }
+
     Token getSchemeId();
     std::vector<Token*>* getIdVector() { return &ids; }
     std::string toString();
