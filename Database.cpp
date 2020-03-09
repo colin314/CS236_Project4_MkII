@@ -24,155 +24,127 @@ Relation* Database::rename(const string& relationName, const string& oldName, co
     return relations.at(relationName)->rename(oldName, newName);
 }
 
-string Database::query1(const string& relationName, const pair<string, string> parameter, const pair<string, string> value) {
-    Relation* rel = relations.at(relationName)->select1(value.first, value.second);
-
-    try {
-        stringstream sstr;
-
-        const vector<Tuple*>* tuples = rel->getTuples();
-
-        if (tuples->size() == 0) {
-            return "No\n";
-        }
-        else {
-            sstr << "Yes(" << tuples->size() << ")" << endl;
-            int index = rel->getAttributeIndex(parameter.first);
-            for (vector<Tuple*>::const_iterator cit = tuples->cbegin(); cit != tuples->cend(); ++cit) {
-                sstr << "  " << parameter.second << "=" << (*cit)->getAt(index) << endl;
-            }
-        }
-        delete rel;
-        return sstr.str();
-    }
-    catch (const std::exception& ex) {
-        delete rel;
-        throw ex;
-    }
-}
-
-string Database::query2(const string& relationName, const pair<string, string> param1, const pair<string, string> param2) {
-    stringstream sstr;
-    if (param1.second == param2.second) {
-        Relation* rel = relations.at(relationName)->select2(param1.first, param2.first);
-        try {
-            const vector<Tuple*>* tuples = rel->getTuples();
-            if (tuples->size() == 0) {
-                return "No\n";
-            }
-            else {
-                sstr << "Yes(" << tuples->size() << ")" << endl;
-                size_t index = rel->getAttributeIndex(param1.first);
-                for (size_t i = 0; i < tuples->size(); i++) {
-                    sstr << "  " << param1.second << "=" << tuples->at(i)->getAt(index) << endl;
-                }
-            }
-            delete rel;
-            return sstr.str();
-        }
-        catch (const std::exception& ex) {
-            delete rel;
-            throw ex;
-        }
-    }
-    else {
-        Relation* rel = relations.at(relationName);
-        const vector<Tuple*>* tuples = rel->getTuples();
-        if (tuples->size() == 0) {
-            return "No\n";
-        }
-        else {
-            sstr << "Yes(" << tuples->size() << ")" << endl;
-            size_t index1 = rel->getAttributeIndex(param1.first);
-            size_t index2 = rel->getAttributeIndex(param2.first);
-            for (size_t i = 0; i < tuples->size(); i++) {
-                sstr << "  " << param1.second << "=" << tuples->at(i)->getAt(index1) << ", " << param2.second << "=" << tuples->at(i)->getAt(index2) << endl;
-            }
-            return sstr.str();
-        }
-    }
-}
-
-string Database::query3(const string& relationName, const pair<string, string> val1, const pair<string, string> val2) {
-    Relation* rel0 = relations.at(relationName)->select1(val1.first, val1.second);
-    try {
-        Relation* rel = rel0->select1(val2.first, val2.second);
-        try {
-            stringstream sstr;
-
-            const vector<Tuple*>* tuples = rel->getTuples();
-
-            if (tuples->size() == 0) {
-                return "No\n";
-            }
-            else {
-                sstr << "Yes(1)" << endl;
-            }
-            delete rel0;
-            delete rel;
-            return sstr.str();
-        }
-        catch (const std::exception& ex) {
-            delete rel;
-            throw ex;
-        }
-    }
-    catch (const std::exception& ex) {
-        delete rel0;
-        throw ex;
-    }
-}
-
 string Database::runQueries() {
     stringstream sstr;
-    for (vector<Predicate*>::const_iterator cit = queries.cbegin(); cit != queries.cend(); ++cit) {
-        if ((*cit)->getParameters()->size() != 2) {
-            cout << "UNABLE TO HANDLE MORE THAN 2 PARAMETERS IN QUERY" << endl;
+
+    for (vector<Predicate*>::const_iterator query = queries.cbegin(); query != queries.cend(); ++query) {
+        sstr << (*query)->getId() << "(";
+
+
+        string queryId = (*query)->getId();
+        Relation* rel = new Relation(*relations.at(queryId));
+        vector<Parameter*>* parameters = (*query)->getParameters();
+        Relation* rel2 = rel;
+        set<string> usedIDs;
+        vector<string> usedIDsVec;
+
+        try {
+            for (size_t i = 0; i < parameters->size(); ++i) {
+                string attrib = rel->getAttribute(i);
+                Parameter* parameter = parameters->at(i);
+
+                if (parameter->getType() == TokenType::ID) {
+                    IdParam* idParam = dynamic_cast<IdParam*>(parameter);
+                    sstr << idParam->getIdStr();
+
+                    if (usedIDs.find(idParam->getIdStr()) == usedIDs.end()) {
+                        rel2 = rel;
+                        rel = rel2->rename(attrib, idParam->getIdStr());
+                        delete rel2; rel2 = nullptr;
+                        usedIDs.insert(idParam->getIdStr());
+                        usedIDsVec.push_back(idParam->getIdStr());
+                    }
+                    else {
+                        stringstream sstr2;
+                        string id = idParam->getIdStr();
+                        sstr2 << id << i;
+                        id = sstr2.str();
+
+                        rel2 = rel;
+                        rel = rel2->rename(attrib, id);
+                        delete rel2; rel2 = nullptr;
+
+                        vector<string> projStrs;
+                        projStrs.push_back(idParam->getIdStr());
+                        Relation* rel3 = rel->project(projStrs);
+                        Relation* rel4 = nullptr;
+                        Relation* rel5 = nullptr;
+                        try {
+                            const vector<Tuple*>* tuples = rel3->getTuples();
+                            vector<Tuple*>::const_iterator cit = tuples->cbegin();
+                            if (cit != tuples->cend()) {
+                                rel2 = rel->select1(idParam->getIdStr(), (*cit)->getData()->at(0));
+                                rel4 = rel2->select1(id, (*cit)->getData()->at(0));
+                                delete rel2; rel2 = nullptr;
+                            }
+                            ++cit;
+                            while (cit != tuples->cend()) {
+                                rel2 = rel->select1(idParam->getIdStr(), (*cit)->getData()->at(0));
+                                rel5 = rel2->select1(id, (*cit)->getData()->at(0));
+                                for (vector<Tuple*>::const_iterator data = rel5->getTuples()->cbegin(); data != rel5->getTuples()->cend(); ++data) {
+                                    rel4->addTuple(*(*data)->getData());
+                                }
+                                delete rel2; rel2 = nullptr;
+                                delete rel5; rel5 = nullptr;
+                                ++cit;
+                            };
+                            rel = rel4;
+                        }
+                        catch (const std::exception& ex) {
+                            if (rel3 != nullptr) { delete rel3; }
+                            if (rel4 != nullptr) { delete rel4; }
+                            if (rel5 != nullptr) { delete rel5; }
+                            throw ex;
+                        }
+                        if (rel3 != nullptr) { delete rel3; }
+                        if (rel5 != nullptr) { delete rel5; }
+                    }
+
+                }
+                else if (parameter->getType() == TokenType::STRING) {
+                    StringParam* strParam = dynamic_cast<StringParam*>(parameter);
+                    sstr << strParam->getStr();
+                    rel2 = rel;
+                    rel = rel2->select1(attrib, strParam->getStr());
+                    delete rel2; rel2 = nullptr;
+                }
+                if (parameters->size() > 1 && i < parameters->size() - 1) {
+                    sstr << ",";
+                }
+            }
         }
-        Parameter* param1 = (*cit)->getParameters()->at(0);
-        Parameter* param2 = (*cit)->getParameters()->at(1);
-        string relationName = (*cit)->getId();
-        Relation* rel = relations.at(relationName);
-        if (param1->getType() == TokenType::STRING && param2->getType() == TokenType::STRING) {
-            StringParam* strParam1 = reinterpret_cast<StringParam*>(param1);
-            StringParam* strParam2 = reinterpret_cast<StringParam*>(param2);
-            string attribute1 = rel->getAttribute(0);
-            string attribute2 = rel->getAttribute(1);
-            pair<string, string> val1 = pair<string, string>(attribute1, strParam1->getStr());
-            pair<string, string> val2 = pair<string, string>(attribute2, strParam2->getStr());
-            sstr << (*cit)->getId() << "(" << strParam1->getStr() << "," << strParam2->getStr() << ")? ";
-            sstr << query3(relationName, val1, val2);
+        catch (const std::exception& ex) {
+            if (rel !=  nullptr) { delete rel; }
+            if (rel2 != nullptr) { delete rel2; }
+            throw ex;
         }
-        else if (param1->getType() == TokenType::ID && param2->getType() == TokenType::STRING) {
-            IdParam* idParam = reinterpret_cast<IdParam*>(param1);
-            StringParam* strParam = reinterpret_cast<StringParam*>(param2);
-            string attribute1 = rel->getAttribute(0);
-            string attribute2 = rel->getAttribute(1);
-            pair<string, string> parameter = pair<string, string>(attribute1, idParam->getIdStr());
-            pair<string, string> value = pair<string, string>(attribute2, strParam->getStr());
-            sstr << (*cit)->getId() << "(" << idParam->getIdStr() << "," << strParam->getStr() << ")? ";
-            sstr << query1(relationName, parameter, value);
+        sstr << ")? ";
+        if (rel->getTuples()->size() == 0) {
+            sstr << "No" << endl;
         }
-        else if (param1->getType() == TokenType::STRING && param2->getType() == TokenType::ID) {
-            IdParam* idParam = reinterpret_cast<IdParam*>(param2);
-            StringParam* strParam = reinterpret_cast<StringParam*>(param1);
-            string attribute1 = rel->getAttribute(0);
-            string attribute2 = rel->getAttribute(1);
-            pair<string, string> parameter = pair<string, string>(attribute2, idParam->getIdStr());
-            pair<string, string> value = pair<string, string>(attribute1, strParam->getStr());
-            sstr << (*cit)->getId() << "(" << strParam->getStr() << "," << idParam->getIdStr() << ")? ";
-            sstr << query1(relationName, parameter, value);
+        else {
+            sstr << "Yes (" << rel->getTuples()->size() << ")" << endl;
+
+            if (usedIDs.size() > 0) {
+                const vector<Tuple*>* tuples = rel->getTuples();
+                for (vector<Tuple*>::const_iterator cit = tuples->cbegin(); cit != tuples->cend(); ++cit) {
+                    sstr << "  ";
+                    for (size_t i = 0; i < usedIDsVec.size(); ++i) {
+                        size_t attribIndex = rel->getAttributeIndex(usedIDsVec.at(i));
+                        sstr << usedIDsVec.at(i) << "=" << (*cit)->getAt(attribIndex);
+                        if (i < usedIDsVec.size() - 1) {
+                            sstr << ", ";
+                        }
+                    }
+                    sstr << endl;
+                }
+            }
         }
-        else if (param1->getType() == TokenType::ID && param2->getType() == TokenType::ID) {
-            IdParam* IdParam1 = reinterpret_cast<IdParam*>(param1);
-            IdParam* IdParam2 = reinterpret_cast<IdParam*>(param2);
-            string attribute1 = rel->getAttribute(0);
-            string attribute2 = rel->getAttribute(1);
-            pair<string, string> param1 = pair<string, string>(attribute1, IdParam1->getIdStr());
-            pair<string, string> param2 = pair<string, string>(attribute2, IdParam2->getIdStr());
-            sstr << (*cit)->getId() << "(" << IdParam1->getIdStr() << "," << IdParam2->getIdStr() << ")? ";
-            sstr << query2(relationName, param1, param2);
+
+            if (rel != nullptr) { delete rel; }
+            if (rel2 != nullptr) { delete rel2; }
         }
-    }
+    
+
     return sstr.str();
 }

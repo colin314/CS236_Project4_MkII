@@ -33,6 +33,13 @@ public:
         }
         this->name = name;
     }
+    Relation(const Relation& relation) {
+        this->scheme = new DbScheme(*relation.scheme);
+        this->name = relation.name;
+        for (size_t i = 0; i < relation.tuples.size(); ++i) {
+            this->tuples.push_back(new Tuple(*(relation.tuples.at(i))));
+        }
+    }
     ~Relation() {
         for (vector<Tuple*>::iterator it = tuples.begin(); it != tuples.end(); it++) {
             delete *it;

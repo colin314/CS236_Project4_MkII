@@ -69,9 +69,9 @@ public:
     DbScheme *generateNewScheme(const vector<string> &newScheme);
     DbScheme *generateNewScheme(size_t attributeIndex, const string newAttributeName)
     {
-        if (attribInScheme(newAttributeName))
+        if (attribInScheme(newAttributeName) && _attributes.at(attributeIndex) != newAttributeName)
         {
-            throw "Cannot rename attribute to new name. The new name is already in the scheme.";
+            throw std::exception();
         }
         string oldName = _attributes.at(attributeIndex);
 
