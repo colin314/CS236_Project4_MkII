@@ -48,9 +48,6 @@ private:
     Relation* project(const string& relationName, const vector<string>& attributes);
     Relation* rename(const string& relationName, const string& oldName, const string& newName);
     Relation* select2(const string& relationName, const string& attribute1, const string& attribute2);
-    string query1(const string& relationName, const pair<string, string> parameter, const pair<string, string> value);
-    string query2(const string& relationName, const pair<string, string> attrib1, const pair<string, string> attrib2);
-    string query3(const string& relationName, const pair<string, string> val1, const pair<string, string> val2);
     map<string, Relation*> relations;
     vector<Predicate*> queries;
     string queryResults;

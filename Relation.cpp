@@ -103,8 +103,8 @@ Relation* Relation::rename(string oldAttribute, string newAttribute) {
     if (!scheme->attribInScheme(oldAttribute)) {
         throw std::exception("Cannot rename attribute. The given attribute is not in the scheme");
     }
-    if (scheme->attribInScheme(newAttribute)) {
-        throw std::exception("Cannot rename attributer. The new name is already in the scheme.");
+    if (scheme->attribInScheme(newAttribute) && oldAttribute != newAttribute) {
+        throw std::exception("Cannot rename attribute. The new name is already in the scheme.");
     }
 
     size_t oldIndex = scheme->getAttribIndex(oldAttribute);
