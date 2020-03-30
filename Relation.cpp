@@ -13,11 +13,11 @@ Relation *Relation::select1(const string &attribute, const string &value)
     try
     {
         rv->name = this->name;
-        for (vector<Tuple *>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); cit++)
+        for (set<Tuple>::iterator cit = tuples.begin(); cit != tuples.end(); cit++)
         {
-            if ((*cit)->getAt(attIndex) == value)
+            if (cit->getAt(attIndex) == value)
             {
-                rv->addTuple(*((*cit)->getData()));
+                rv->addTuple(cit->getData());
             }
         }
     }
@@ -49,11 +49,11 @@ Relation *Relation::select2(const string &attribute1, const string &attribute2)
     try
     {
         rv->name = this->name;
-        for (vector<Tuple *>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); cit++)
+        for (set<Tuple>::iterator cit = tuples.begin(); cit != tuples.end(); cit++)
         {
-            if ((*cit)->getAt(index1) == (*cit)->getAt(index2))
+            if (cit->getAt(index1) == cit->getAt(index2))
             {
-                rv->addTuple(*((*cit)->getData()));
+                rv->addTuple(cit->getData());
             }
         }
     }
@@ -88,9 +88,9 @@ Relation *Relation::project(const vector<string> &attributes)
         vector<size_t> *attributeIndices = scheme->getAttributeIndices(attributes);
         try
         {
-            for (vector<Tuple *>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); ++cit)
+            for (set<Tuple>::iterator cit = tuples.begin(); cit != tuples.end(); ++cit)
             {
-                vector<string> items = (*cit)->getItems(*attributeIndices);
+                vector<string> items = cit->getItems(*attributeIndices);
                 rv->addTuple(items);
             }
         }
@@ -144,24 +144,7 @@ void Relation::addTuple(const vector<string> &data)
         throw "Cannot add tuple to relation. Number of elements in tuple not equal to scheme size.";
     }
 
-    bool unequal = true;
-    for (vector<Tuple *>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); cit++)
-    {
-        unequal = false;
-        for (size_t i = 0; i < data.size(); i++)
-        {
-            if ((*cit)->getAt(i) != data.at(i))
-            {
-                unequal = true;
-                break;
-            }
-        }
-        if (!unequal)
-        {
-            return;
-        }
-    }
-    tuples.push_back(new Tuple(data));
+    std::pair<set<Tuple>::iterator, bool> result = tuples.insert(Tuple(data));
 }
 
 string Relation::toString() const
@@ -170,9 +153,9 @@ string Relation::toString() const
     sstr << "Relation Name: " << name << endl;
     sstr << "Relation Scheme: " << scheme->toString() << endl;
     sstr << "Tuples in Relation:" << endl;
-    for (vector<Tuple *>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); ++cit)
+    for (set<Tuple>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); ++cit)
     {
-        sstr << "\t" << (*cit)->toString() << endl;
+        sstr << "\t" << cit->toString() << endl;
     }
     return sstr.str();
 }

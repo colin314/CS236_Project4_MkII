@@ -30,7 +30,6 @@ string Database::runQueries() {
     for (vector<Predicate*>::const_iterator query = queries.cbegin(); query != queries.cend(); ++query) {
         sstr << (*query)->getId() << "(";
 
-
         string queryId = (*query)->getId();
         Relation* rel = new Relation(*relations.at(queryId));
         vector<Parameter*>* parameters = (*query)->getParameters();
@@ -70,19 +69,20 @@ string Database::runQueries() {
                         Relation* rel4 = nullptr;
                         Relation* rel5 = nullptr;
                         try {
-                            const vector<Tuple*>* tuples = rel3->getTuples();
-                            vector<Tuple*>::const_iterator cit = tuples->cbegin();
-                            if (cit != tuples->cend()) {
-                                rel2 = rel->select1(idParam->getIdStr(), (*cit)->getData()->at(0));
-                                rel4 = rel2->select1(id, (*cit)->getData()->at(0));
+                            set<Tuple> tuples = rel3->getTuples();
+                            set<Tuple>::iterator cit = tuples.begin();
+                            if (cit != tuples.end()) {
+                                rel2 = rel->select1(idParam->getIdStr(), cit->getData().at(0));
+                                rel4 = rel2->select1(id, cit->getData().at(0));
                                 delete rel2; rel2 = nullptr;
                             }
                             ++cit;
-                            while (cit != tuples->cend()) {
-                                rel2 = rel->select1(idParam->getIdStr(), (*cit)->getData()->at(0));
-                                rel5 = rel2->select1(id, (*cit)->getData()->at(0));
-                                for (vector<Tuple*>::const_iterator data = rel5->getTuples()->cbegin(); data != rel5->getTuples()->cend(); ++data) {
-                                    rel4->addTuple(*(*data)->getData());
+                            while (cit != tuples.cend()) {
+                                rel2 = rel->select1(idParam->getIdStr(), cit->getData().at(0));
+                                rel5 = rel2->select1(id, cit->getData().at(0));
+                                set<Tuple> tuples2 = rel5->getTuples();
+                                for (set<Tuple>::iterator data = tuples2.begin(); data != tuples2.cend(); ++data) {
+                                    rel4->addTuple(data->getData());
                                 }
                                 delete rel2; rel2 = nullptr;
                                 delete rel5; rel5 = nullptr;
@@ -119,19 +119,19 @@ string Database::runQueries() {
             throw ex;
         }
         sstr << ")? ";
-        if (rel->getTuples()->size() == 0) {
+        set<Tuple> relTuples = rel->getTuples();
+        if (relTuples.size() == 0) {
             sstr << "No" << endl;
         }
         else {
-            sstr << "Yes (" << rel->getTuples()->size() << ")" << endl;
+            sstr << "Yes (" << relTuples.size() << ")" << endl;
 
             if (usedIDs.size() > 0) {
-                const vector<Tuple*>* tuples = rel->getTuples();
-                for (vector<Tuple*>::const_iterator cit = tuples->cbegin(); cit != tuples->cend(); ++cit) {
+                for (set<Tuple>::iterator cit = relTuples.begin(); cit != relTuples.end(); ++cit) {
                     sstr << "  ";
                     for (size_t i = 0; i < usedIDsVec.size(); ++i) {
                         size_t attribIndex = rel->getAttributeIndex(usedIDsVec.at(i));
-                        sstr << usedIDsVec.at(i) << "=" << (*cit)->getAt(attribIndex);
+                        sstr << usedIDsVec.at(i) << "=" << cit->getAt(attribIndex);
                         if (i < usedIDsVec.size() - 1) {
                             sstr << ", ";
                         }

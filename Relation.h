@@ -26,43 +26,37 @@ public:
     Relation(DbScheme* dbScheme) {
         scheme = dbScheme;
     }
-    Relation(DbScheme* dbScheme, const vector<Tuple*>& tuples, string name) {
+    Relation(DbScheme* dbScheme, const set<Tuple>& tuples, string name) {
         scheme = dbScheme;
-        for (vector<Tuple*>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); ++cit) {
-            this->tuples.push_back(new Tuple(*(*cit)));
+        for (set<Tuple>::const_iterator cit = tuples.cbegin(); cit != tuples.cend(); ++cit) {
+            this->tuples.insert(Tuple(*cit));
         }
         this->name = name;
     }
     Relation(const Relation& relation) {
         this->scheme = new DbScheme(*relation.scheme);
         this->name = relation.name;
-        for (size_t i = 0; i < relation.tuples.size(); ++i) {
-            this->tuples.push_back(new Tuple(*(relation.tuples.at(i))));
-        }
+        this->tuples = relation.tuples;
     }
     ~Relation() {
-        for (vector<Tuple*>::iterator it = tuples.begin(); it != tuples.end(); it++) {
-            delete *it;
-        }
         delete scheme;
     }
 
-    Relation* select2(const string& attribute1, const string& attribute2);
     Relation* select1(const string& attribute, const string& value);
+    Relation* select2(const string& attribute1, const string& attribute2);
     Relation* project(const vector<string>& attributes);
     Relation* rename(string oldAttribute, string newAttribute);
+    void addTuple(const vector<string>& data);
+    string toString() const;
 
+    set<Tuple> getTuples() { return tuples; }
     const size_t getAttributeIndex(const string& attribute) {
         return scheme->getAttribIndex(attribute);
     }
-
     const string getAttribute(size_t index) {
         return scheme->getAttribute(index);
     }
 
-    void addTuple(const vector<string>& data);
-    const vector<Tuple*>* getTuples() const { return &tuples; }
-    string toString() const;
 
 private:
     Relation() {
@@ -71,7 +65,7 @@ private:
     Relation(string relationName) {
         name = relationName;
     }
-    vector<Tuple*> tuples;
+    set<Tuple> tuples;
     string name;
     DbScheme* scheme;
 };

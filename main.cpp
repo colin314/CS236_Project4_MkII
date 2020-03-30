@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "Database.h"
+#include <map>
 #include "Scanner.h"
 #include "DataLogger.h"
-#include <map>
+#include "Database.h"
 
 using namespace std;
 
@@ -15,11 +15,10 @@ int main(int argc, char *argv[])
     DataLogger *dataLogger = new DataLogger();
     dataLogger->parse(&tokens);
 
-    Database *db = new Database(*dataLogger);
+    Database* db = new Database(*dataLogger);
 
-    cout << db->runQueries();
+    cout << db->runQueries() << endl;
 
-    delete db;
     delete scnr;
     delete dataLogger;
     return 0;
